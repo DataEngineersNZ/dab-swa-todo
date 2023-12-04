@@ -2,7 +2,7 @@
   "$schema": "https://github.com/Azure/data-api-builder/releases/download/v0.7.6/dab.draft.schema.json",
   "data-source": {
     "database-type": "mssql",
-    "connection-string": "@env('AZURE_SQL_APP_USER')"
+    "connection-string": "Server=omnata-sandpit.database.windows.net,1433;Initial Catalog=omnata-src;Persist Security Info=False;User ID=administrator-omnata;Password=M0nch0pp3r^000;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;"
   },
   "runtime": {
     "rest": {
@@ -23,38 +23,91 @@
     }
   },
   "entities": {
-    "Todo": {
-      "source": "dbo.todos",
+    "Address": {
+      "source": {
+        "object": "SalesLT.Address",
+        "type": "table"
+      },
+      "graphql": {
+        "enabled": true,
+        "type": {
+          "singular": "Address",
+          "plural": "Addresses"
+        }
+      },
       "rest": {
-        "path": "todo"
+        "enabled": true
       },
       "permissions": [
         {
           "role": "anonymous",
           "actions": [
             {
-              "action": "*",
-              "policy": {
-                "database": "@item.owner_id eq 'public'"
-              }
-            }            
+              "action": "*"
+            }
           ]
-        },
+        }
+      ]
+    },
+    "Address_cdc": {
+      "source": {
+        "object": "cdc.SalesLT_Address_CT",
+        "type": "table",
+        "key-fields": [
+          "__$start_lsn",
+          "__$operation",
+          "AddressID"
+        ]
+      },
+      "graphql": {
+        "enabled": false,
+        "type": {
+          "singular": "Address_cdc",
+          "plural": "Address_cdcs"
+        }
+      },
+      "rest": {
+        "enabled": true
+      },
+      "permissions": [
         {
-          "role": "authenticated",
+          "role": "anonymous",
           "actions": [
             {
-              "action": "*",
-              "policy": {
-                "database": "@item.owner_id eq @claims.userId"
-              }
-            }            
+              "action": "*"
+            }
           ]
-        }        
-      ],
-      "mappings": {
-        "position": "order"
-      }      
+        }
+      ]
+    },
+    "initise_tables": {
+      "source": {
+        "object": "sys.tables",
+        "type": "table",
+        "key-fields": [
+          "object_id"
+        ]
+      },
+      "graphql": {
+        "enabled": true,
+        "type": {
+          "singular": "initise_tables",
+          "plural": "initise_tables"
+        }
+      },
+      "rest": {
+        "enabled": true
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "*"
+            }
+          ]
+        }
+      ]
     }
   }
 }
